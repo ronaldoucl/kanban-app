@@ -1,0 +1,112 @@
+# ===========================
+# Dependencias
+# ===========================
+node_modules/
+.pnp
+.pnp.js
+
+# ===========================
+# Variables de entorno
+# ===========================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+
+# ===========================
+# Build y compilación
+# ===========================
+dist/
+build/
+out/
+
+# Angular
+frontend/dist/
+frontend/.angular/
+frontend/.angular/cache/
+
+# TypeScript compilado (backend)
+backend/dist/
+backend/build/
+
+# ===========================
+# Prisma
+# ===========================
+# El cliente generado no se versiona, se regenera con `prisma generate`
+backend/src/generated/
+backend/node_modules/.prisma/
+
+# ===========================
+# Logs
+# ===========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
+# Caché y temporales
+# ===========================
+.cache/
+.temp/
+.tmp/
+*.tmp
+
+# ===========================
+# Testing y cobertura
+# ===========================
+coverage/
+.nyc_output/
+*.lcov
+
+# ===========================
+# Sistema operativo
+# ===========================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ===========================
+# IDEs y editores
+# ===========================
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+
+# ===========================
+# Paquetes y bloqueos (opcional según preferencia de equipo)
+# ===========================
+# Descomentar si se decide no versionar lock files:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ===========================
+# Miscellaneous
+# ===========================
+*.pem
+*.key
+*.cert
+*.p12
