@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../core/services/auth.service';
@@ -21,6 +21,13 @@ export class BoardsComponent implements OnInit, OnDestroy {
   boards = signal<Board[]>([]);
   loading = signal(true);
   creatingBoard = signal(false);
+
+  /** Tablero cuyo menú contextual (⋯) está abierto, o null si ninguno. */
+  activeMenuId = signal<string | null>(null);
+  /** Tablero que se está renombrando en línea, o null. */
+  editingBoardId = signal<string | null>(null);
+  /** Valor en edición del input de renombrado. */
+  editingName = signal<string>('');
 
   /** ID de la última card movida localmente para evitar aplicar el eco del socket. */
   private lastMovedCardId: string | null = null;
@@ -98,6 +105,50 @@ export class BoardsComponent implements OnInit, OnDestroy {
       this.boards.update(bs => [...bs, board]);
       this.socketSvc.joinBoard(board.id);
     });
+  }
+
+  toggleMenu(boardId: string, event: Event): void {
+    event.stopPropagation();
+    this.activeMenuId.set(this.activeMenuId() === boardId ? null : boardId);
+  }
+
+  startRename(board: Board, event: Event): void {
+    event.stopPropagation();
+    this.editingBoardId.set(board.id);
+    this.editingName.set(board.title);
+    this.activeMenuId.set(null);
+  }
+
+  confirmRename(boardId: string): void {
+    const title = this.editingName().trim();
+    if (!title) {
+      this.cancelRename();
+      return;
+    }
+    this.boardSvc.renameBoard(boardId, title).subscribe({
+      next: () => {
+        this.boards.update(bs => bs.map(b => (b.id === boardId ? { ...b, title } : b)));
+        this.editingBoardId.set(null);
+      }
+    });
+  }
+
+  cancelRename(): void {
+    this.editingBoardId.set(null);
+  }
+
+  deleteBoard(boardId: string): void {
+    this.activeMenuId.set(null);
+    const snapshot = this.boards();
+    this.boards.update(bs => bs.filter(b => b.id !== boardId));
+    this.boardSvc.deleteBoard(boardId).subscribe({
+      error: () => this.boards.set(snapshot)
+    });
+  }
+
+  @HostListener('document:click')
+  closeMenu(): void {
+    this.activeMenuId.set(null);
   }
 
   onCardAdded(event: AddCardEvent, board: Board): void {

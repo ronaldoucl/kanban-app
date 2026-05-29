@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { authGuard } from '../middleware/auth.middleware';
-import { getBoards, createBoard, deleteBoard } from '../controllers/boards.controller';
+import { getBoards, createBoard, deleteBoard, renameBoard } from '../controllers/boards.controller';
 
 const router = Router();
 
@@ -25,6 +25,7 @@ router.use(authGuard);
 
 router.get('/', getBoards);
 router.post('/', validate(createBoardSchema), createBoard);
+router.patch('/:id', renameBoard);
 router.delete('/:id', deleteBoard);
 
 export default router;

@@ -53,6 +53,18 @@ export class BoardService {
       .pipe(map(res => res.data));
   }
 
+  renameBoard(boardId: string, title: string): Observable<Board> {
+    return this.http
+      .patch<ApiResponse<Board>>(`${this.apiUrl}/boards/${boardId}`, { title })
+      .pipe(map(res => res.data));
+  }
+
+  deleteBoard(boardId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<null>>(`${this.apiUrl}/boards/${boardId}`)
+      .pipe(map(() => undefined));
+  }
+
   createCard(title: string, columnId: string): Observable<Card> {
     return this.http
       .post<ApiResponse<Card>>(`${this.apiUrl}/cards`, { title, columnId })

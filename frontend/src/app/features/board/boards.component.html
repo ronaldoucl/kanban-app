@@ -64,7 +64,46 @@
     } @else {
       @for (board of boards(); track board.id) {
         <section class="board-section">
-          <h2 class="board-section__title">{{ board.title }}</h2>
+          <div class="board-section__head">
+            @if (editingBoardId() !== board.id) {
+              <h2 class="board-section__title">{{ board.title }}</h2>
+              <button
+                class="board-menu-btn"
+                (click)="toggleMenu(board.id, $event)"
+                aria-label="Opciones"
+              >
+                <i class="ti ti-dots" aria-hidden="true"></i>
+              </button>
+              @if (activeMenuId() === board.id) {
+                <div class="dropdown">
+                  <div class="dropdown-item" (click)="startRename(board, $event)">
+                    <i class="ti ti-edit" aria-hidden="true"></i> Renombrar
+                  </div>
+                  <div class="dropdown-item danger" (click)="deleteBoard(board.id)">
+                    <i class="ti ti-trash" aria-hidden="true"></i> Eliminar tablero
+                  </div>
+                </div>
+              }
+            } @else {
+              <input
+                class="rename-input"
+                [value]="editingName()"
+                (input)="editingName.set($any($event.target).value)"
+                (click)="$event.stopPropagation()"
+                (keydown.enter)="confirmRename(board.id)"
+                (keydown.escape)="cancelRename()"
+                autofocus
+              />
+              <div class="rename-actions">
+                <button class="btn-confirm" (click)="confirmRename(board.id)">
+                  <i class="ti ti-check" aria-hidden="true"></i>
+                </button>
+                <button class="btn-cancel" (click)="cancelRename()">
+                  <i class="ti ti-x" aria-hidden="true"></i>
+                </button>
+              </div>
+            }
+          </div>
           <div class="columns-row" cdkDropListGroup>
             @for (col of board.columns; track col.id) {
               <app-column
