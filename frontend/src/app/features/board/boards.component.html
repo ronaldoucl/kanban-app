@@ -1,6 +1,6 @@
 <div class="board-page">
   <header class="navbar">
-    <div class="navbar__brand">KanFlow</div>
+    <div class="navbar__brand">Taskr</div>
     <div class="navbar__right">
       <span class="avatar" title="Tu cuenta" aria-label="Tu cuenta">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -34,7 +34,33 @@
     @if (loading()) {
       <p class="state-msg">Cargando tableros…</p>
     } @else if (boards().length === 0) {
-      <p class="state-msg">No tenés tableros. Creá uno para empezar.</p>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="ti ti-layout-kanban" aria-hidden="true"></i>
+        </div>
+        <h2 class="empty-title">No tenés tableros todavía</h2>
+        <p class="empty-desc">
+          Creá tu primer tablero para empezar a organizar tus tareas con columnas y tarjetas.
+        </p>
+        <button class="btn-create-first" (click)="creatingBoard.set(true)">
+          <i class="ti ti-plus" aria-hidden="true"></i>
+          Crear mi primer tablero
+        </button>
+        <div class="empty-features">
+          <div class="feature-card">
+            <i class="ti ti-list" aria-hidden="true"></i>
+            <span>Columnas por defecto</span>
+          </div>
+          <div class="feature-card">
+            <i class="ti ti-arrows-move" aria-hidden="true"></i>
+            <span>Drag & drop en tiempo real</span>
+          </div>
+          <div class="feature-card">
+            <i class="ti ti-users" aria-hidden="true"></i>
+            <span>Colaboración por socket</span>
+          </div>
+        </div>
+      </div>
     } @else {
       @for (board of boards(); track board.id) {
         <section class="board-section">
