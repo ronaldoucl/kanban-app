@@ -107,28 +107,47 @@
   min-width: 220px;
 }
 
-.board-section {
-  margin-bottom: 28px;
+/* ---- Grilla de tableros ---- */
+.boards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
-.board-section__head {
+.board-card {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 16px;
+  background: #fff;
+  border: 0.5px solid #E4E6EF;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
 
-  &:hover .board-menu-btn { opacity: 1; }
+  &:hover {
+    border-color: var(--color-brand-mid);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+    .board-menu-btn { opacity: 1; }
+  }
 }
 
-.board-section__title {
-  font-size: 20px;
+.board-title {
+  font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: #181C32;
+  margin: 0 28px 6px 0;
+}
+
+.board-meta {
+  font-size: 12px;
+  color: #5E6278;
   margin: 0;
 }
 
 .board-menu-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   width: 24px;
   height: 24px;
   border-radius: 4px;
@@ -148,8 +167,8 @@
 
 .dropdown {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
+  top: 36px;
+  right: 10px;
   background: #fff;
   border: 0.5px solid #E4E6EF;
   border-radius: 6px;
@@ -180,13 +199,14 @@
 }
 
 .rename-input {
+  width: 100%;
   border: 1px solid #1B3A6B;
   border-radius: 4px;
   padding: 4px 8px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 13px;
   color: #181C32;
   outline: none;
+  margin-bottom: 8px;
 }
 
 .rename-actions {
@@ -214,14 +234,6 @@
 .btn-cancel {
   background: #F5F6F8;
   color: #5E6278;
-}
-
-.columns-row {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  align-items: flex-start;
 }
 
 .state-msg {

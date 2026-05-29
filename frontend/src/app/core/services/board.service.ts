@@ -47,6 +47,12 @@ export class BoardService {
       .pipe(map(res => res.data));
   }
 
+  getBoardById(id: string): Observable<Board> {
+    return this.http
+      .get<ApiResponse<Board>>(`${this.apiUrl}/boards/${id}`)
+      .pipe(map(res => res.data));
+  }
+
   createBoard(title: string): Observable<Board> {
     return this.http
       .post<ApiResponse<Board>>(`${this.apiUrl}/boards`, { title })

@@ -19,5 +19,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/board/boards.component').then(m => m.BoardsComponent)
   },
+  {
+    path: 'boards/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/board/board-detail.component').then(m => m.BoardDetailComponent)
+  },
   { path: '**', redirectTo: '/login' }
 ];

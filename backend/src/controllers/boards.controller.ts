@@ -30,6 +30,42 @@ export async function getBoards(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function getBoardById(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const { id } = req.params;
+
+    if (!id) {
+      res.status(404).json({ data: null, error: 'Board no encontrado', message: null });
+      return;
+    }
+
+    // El parámetro puede ser el cuid completo (URLs viejas) o solo su sufijo
+    // (URLs nuevas con id corto); `endsWith` cubre ambos casos. El filtro por
+    // ownerId acota la búsqueda a los pocos tableros del usuario.
+    const board = await prisma.board.findFirst({
+      where: { ownerId: userId, id: { endsWith: id } },
+      include: {
+        columns: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            cards: { orderBy: { order: 'asc' } },
+          },
+        },
+      },
+    });
+
+    if (!board) {
+      res.status(404).json({ data: null, error: 'Board no encontrado', message: null });
+      return;
+    }
+
+    res.json({ data: board, error: null, message: null });
+  } catch {
+    res.status(500).json({ data: null, error: 'Error interno del servidor', message: null });
+  }
+}
+
 export async function createBoard(req: Request, res: Response): Promise<void> {
   try {
     const userId = req.user!.id;

@@ -62,11 +62,14 @@
         </div>
       </div>
     } @else {
-      @for (board of boards(); track board.id) {
-        <section class="board-section">
-          <div class="board-section__head">
+      <div class="boards-grid">
+        @for (board of boards(); track board.id) {
+          <div class="board-card" (click)="openBoard(board)">
             @if (editingBoardId() !== board.id) {
-              <h2 class="board-section__title">{{ board.title }}</h2>
+              <p class="board-title">{{ board.title }}</p>
+              <p class="board-meta">
+                {{ board.columns.length }} columnas · {{ cardCount(board) }} tarjetas
+              </p>
               <button
                 class="board-menu-btn"
                 (click)="toggleMenu(board.id, $event)"
@@ -75,7 +78,7 @@
                 <i class="ti ti-dots" aria-hidden="true"></i>
               </button>
               @if (activeMenuId() === board.id) {
-                <div class="dropdown">
+                <div class="dropdown" (click)="$event.stopPropagation()">
                   <div class="dropdown-item" (click)="startRename(board, $event)">
                     <i class="ti ti-edit" aria-hidden="true"></i> Renombrar
                   </div>
@@ -85,37 +88,28 @@
                 </div>
               }
             } @else {
-              <input
-                class="rename-input"
-                [value]="editingName()"
-                (input)="editingName.set($any($event.target).value)"
-                (click)="$event.stopPropagation()"
-                (keydown.enter)="confirmRename(board.id)"
-                (keydown.escape)="cancelRename()"
-                autofocus
-              />
-              <div class="rename-actions">
-                <button class="btn-confirm" (click)="confirmRename(board.id)">
-                  <i class="ti ti-check" aria-hidden="true"></i>
-                </button>
-                <button class="btn-cancel" (click)="cancelRename()">
-                  <i class="ti ti-x" aria-hidden="true"></i>
-                </button>
+              <div class="rename-block" (click)="$event.stopPropagation()">
+                <input
+                  class="rename-input"
+                  [value]="editingName()"
+                  (input)="editingName.set($any($event.target).value)"
+                  (keydown.enter)="confirmRename(board.id)"
+                  (keydown.escape)="cancelRename()"
+                  autofocus
+                />
+                <div class="rename-actions">
+                  <button class="btn-confirm" (click)="confirmRename(board.id)">
+                    <i class="ti ti-check" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn-cancel" (click)="cancelRename()">
+                    <i class="ti ti-x" aria-hidden="true"></i>
+                  </button>
+                </div>
               </div>
             }
           </div>
-          <div class="columns-row" cdkDropListGroup>
-            @for (col of board.columns; track col.id) {
-              <app-column
-                [column]="col"
-                (cardAdded)="onCardAdded($event, board)"
-                (cardDeleted)="onCardDeleted($event, board)"
-                (dropped)="onDrop($event, board)"
-              />
-            }
-          </div>
-        </section>
-      }
+        }
+      </div>
     }
   </main>
 </div>
