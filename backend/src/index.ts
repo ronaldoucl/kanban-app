@@ -9,18 +9,25 @@ import cardsRoutes from './routes/cards.routes';
 import { initBoardSocket } from './socket/board.socket';
 import { logger } from './utils/logger';
 
+const allowedOrigins = [
+  'https://kanban-app-seven-rouge.vercel.app',
+  'http://localhost:4200'
+];
+
 const app = express();
 const httpServer = createServer(app);
-const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:4200';
 
 const io = new Server(httpServer, {
   cors: {
-    origin: FRONTEND_URL,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
   },
 });
 
-app.use(cors({ origin: FRONTEND_URL }));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/auth', authRoutes);
