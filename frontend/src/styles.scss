@@ -4,21 +4,57 @@
    Design tokens
    ============================================================ */
 :root {
+  /* Brand */
   --color-brand: #1b3a6b;
   --color-brand-light: #e8edf5;
   --color-brand-mid: #4a6fa5;
+  --color-brand-hover: #16315c;
+
+  /* Surfaces */
   --color-surface: #f5f6f8;
   --color-surface-card: #ffffff;
+  --color-surface-hover: #f5f6f8;
   --color-border: #e4e6ef;
+  --color-border-strong: #d0d3e0;
+
+  /* Texto */
   --color-text-primary: #181c32;
   --color-text-secondary: #5e6278;
   --color-text-muted: #a1a5b7;
+
+  /* Feedback */
+  --color-danger: #d9534f;
+  --color-danger-strong: #a32d2d;
+  --color-danger-light: #fcebeb;
+  --color-success: #16a34a;
+
   --color-accent-top: #1b3a6b;
 
-  --color-brand-hover: #16315c;
-  --color-danger: #d9534f;
-
+  /* Radios */
+  --radius-sm: 4px;
   --radius: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 3px rgba(24, 28, 50, 0.06);
+  --shadow-md: 0 4px 12px rgba(24, 28, 50, 0.08);
+  --shadow-lg: 0 14px 34px -10px rgba(15, 23, 42, 0.28);
+
+  /* Anillo de foco accesible */
+  --focus-ring: 0 0 0 3px rgba(27, 58, 107, 0.35);
+
+  /* Layout */
+  --navbar-h: 56px;
+  --content-pad: 24px;
+}
+
+/* Padding de contenido más ajustado en pantallas chicas (mobile vertical) */
+@media (max-width: 767px) {
+  :root {
+    --content-pad: 16px;
+    --navbar-h: 52px;
+  }
 }
 
 /* ============================================================
@@ -44,6 +80,12 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Evita el scroll horizontal accidental en mobile sin afectar el
+     scroll interno del tablero ni el position:sticky del navbar.
+     `clip` (a diferencia de `hidden`) no crea un contenedor de scroll. */
+  overflow-x: clip;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* ============================================================
@@ -87,11 +129,33 @@ input::placeholder {
   color: var(--color-text-muted);
 }
 
+/* En mobile los inputs deben tener >=16px para que iOS no haga zoom al
+   enfocarlos. Subimos el tamaño base de los controles de texto. */
+@media (max-width: 767px) {
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* ============================================================
+   Accesibilidad — foco visible por teclado
+   ============================================================ */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
 /* ============================================================
    CDK drag & drop visuals (clone vive fuera del componente)
    ============================================================ */
 .cdk-drag-preview {
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 8px 20px rgba(24, 28, 50, 0.2);
 }
 

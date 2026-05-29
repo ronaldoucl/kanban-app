@@ -53,7 +53,13 @@
     (cdkDropListDropped)="dropped.emit($event)"
   >
     @for (card of column.cards; track card.id) {
-      <app-card [card]="card" (cardDeleted)="cardDeleted.emit($event)" />
+      <app-card
+        [card]="card"
+        [columns]="allColumns"
+        [dragDisabled]="dragDisabled"
+        (cardDeleted)="cardDeleted.emit($event)"
+        (cardMoved)="cardMoved.emit($event)"
+      />
     }
   </div>
 

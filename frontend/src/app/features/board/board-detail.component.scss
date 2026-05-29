@@ -1,5 +1,12 @@
 .board-page {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* El tablero ocupa exactamente el alto de la ventana y el scroll vive
+     dentro de las columnas (estilo Trello/Jira). 100dvh contempla la barra
+     de direcciones móvil; 100vh queda como fallback. */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--color-surface);
 }
 
@@ -8,10 +15,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
-  padding: 0 24px;
+  height: var(--navbar-h);
+  padding: 0 var(--content-pad);
   background: var(--color-surface-card);
   border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .navbar__brand {
@@ -24,7 +34,7 @@
 .navbar__right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .avatar {
@@ -35,6 +45,7 @@
   color: var(--color-brand);
   display: grid;
   place-items: center;
+  flex-shrink: 0;
 }
 
 .avatar svg {
@@ -48,16 +59,27 @@
   color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 500;
-  padding: 4px 6px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .logout-link:hover {
   color: var(--color-brand);
+  background: var(--color-surface-hover);
 }
 
 /* ---- Contenido ---- */
 .board-content {
-  padding: 24px;
+  flex: 1;
+  padding: var(--content-pad);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* Permite que columns-row absorba el alto restante y scrollee adentro
+     en lugar de desbordar la página. */
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ---- Breadcrumb ---- */
@@ -67,40 +89,90 @@
   gap: 8px;
   margin-bottom: 22px;
   font-size: 14px;
+  min-width: 0;
 }
 
 .breadcrumb__link {
   background: none;
   border: none;
-  padding: 0;
+  padding: 6px 8px 6px 0;
   cursor: pointer;
   color: var(--color-text-secondary);
   font-size: 14px;
   font-weight: 500;
+  flex-shrink: 0;
 
   &:hover { color: var(--color-brand); }
 }
 
 .breadcrumb__sep {
   color: var(--color-text-secondary);
+  flex-shrink: 0;
 }
 
 .breadcrumb__current {
   font-weight: 600;
   color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .columns-row {
   display: flex;
   gap: 16px;
+  /* Ocupa el alto disponible para que las columnas se estiren a pantalla
+     completa y las tarjetas scrolleen dentro de cada columna. */
+  flex: 1;
+  min-height: 0;
   overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 12px;
+  align-items: stretch;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: var(--content-pad);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   Mobile (≤767px): la fila Kanban se convierte en una lista vertical
+   de secciones. Cada columna ocupa el ancho completo y crece según su
+   contenido (sin cajas gigantes ni scroll horizontal).
+   ============================================================ */
+.columns-row--stacked {
+  flex-direction: column;
+  flex: 0 1 auto;
+  align-items: stretch;
+  gap: 20px;
+  overflow-x: hidden;
+  overflow-y: visible;
   padding-bottom: 8px;
-  align-items: flex-start;
+  scroll-snap-type: none;
+
+  > app-column {
+    scroll-snap-align: none;
+  }
+}
+
+.columns-row > app-column {
+  scroll-snap-align: start;
+}
+
+/* scrollbar discreta en desktop */
+.columns-row::-webkit-scrollbar {
+  height: 10px;
+}
+.columns-row::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+}
+.columns-row::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* Mientras se arrastra una columna */
 .cdk-drag-preview app-column {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-lg);
 }
 
 .cdk-drag-placeholder {
@@ -112,43 +184,76 @@
 }
 
 .new-col-btn {
-  min-width: 180px;
+  width: 280px;
+  min-width: 280px;
   height: 48px;
-  background: #fff;
-  border: 0.5px dashed #E4E6EF;
-  border-radius: 6px;
+  background: var(--color-surface-card);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 12px;
-  color: #A1A5B7;
+  font-size: 13px;
+  color: var(--color-text-muted);
   cursor: pointer;
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 3px;
-  &:hover { border-color: #1B3A6B; color: #1B3A6B; }
+  transition: border-color 0.15s, color 0.15s;
+  &:hover { border-color: var(--color-brand); color: var(--color-brand); }
   i { font-size: 14px; }
 }
 
 .new-col-form {
-  min-width: 180px;
-  background: #fff;
-  border: 0.5px solid #E4E6EF;
-  border-radius: 6px;
-  padding: 10px;
+  width: 280px;
+  min-width: 280px;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 12px;
   flex-shrink: 0;
   align-self: flex-start;
 
   input {
     width: 100%;
-    border: 1px solid #1B3A6B;
-    border-radius: 4px;
-    padding: 5px 8px;
-    font-size: 12px;
+    border: 1px solid var(--color-brand);
+    border-radius: var(--radius-sm);
+    padding: 8px 8px;
+    font-size: 14px;
     outline: none;
     margin-bottom: 8px;
     box-sizing: border-box;
+  }
+}
+
+@media (max-width: 767px) {
+  /* La página vuelve a flujo natural: scroll vertical del documento en vez
+     de mantener el alto fijo de ventana del Kanban de desktop. */
+  .board-page {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .board-content {
+    min-height: 0;
+    overflow: visible;
+  }
+
+  /* "+ Nueva columna" pasa a ancho completo y con buen alto táctil. */
+  .new-col-btn,
+  .new-col-form {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    align-self: stretch;
+  }
+
+  .new-col-btn {
+    height: 52px;
+    font-size: 14px;
   }
 }
 
@@ -158,35 +263,59 @@
 }
 
 .btn-confirm {
-  background: #1B3A6B;
+  background: var(--color-brand);
   color: #fff;
   border: none;
-  border-radius: 4px;
-  width: 28px;
-  height: 28px;
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 13px;
+
+  &:hover { background: var(--color-brand-hover); }
 }
 
 .btn-cancel {
-  background: #F5F6F8;
-  color: #5E6278;
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
   border: none;
-  border-radius: 4px;
-  width: 28px;
-  height: 28px;
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 13px;
+
+  &:hover { color: var(--color-text-primary); }
 }
 
 .state-msg {
   text-align: center;
   padding: 48px;
   color: var(--color-text-secondary);
+}
+
+/* ---- Footer ---- */
+.app-footer {
+  margin-top: auto;
+  padding: 16px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.01em;
+  border-top: 1px solid var(--color-border);
+
+  a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border-strong);
+    padding-bottom: 1px;
+
+    &:hover { color: var(--color-text-secondary); }
+  }
 }

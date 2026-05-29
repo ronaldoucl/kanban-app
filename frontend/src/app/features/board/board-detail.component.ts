@@ -28,6 +28,23 @@ export class BoardDetailComponent implements OnInit, OnDestroy {
   /** IDs de todas las columnas; usado para conectar las listas de cards (DnD). */
   columnIds = computed(() => this.board()?.columns.map(col => col.id) ?? []);
 
+  /** Resumen ligero de columnas para alimentar el menú "Mover a…" de cada
+   *  card sin pasar el árbol completo de tarjetas. */
+  columnSummaries = computed(
+    () => this.board()?.columns.map(col => ({ id: col.id, title: col.title })) ?? []
+  );
+
+  /** Mobile (lista vertical) vs. Kanban horizontal. Se sincroniza con el
+   *  mismo breakpoint del CSS (767px) para que UI y lógica no se desfasen
+   *  (orientación del drag de columnas, drag de cards deshabilitado, etc.). */
+  isMobile = signal(false);
+  private mql: MediaQueryList | null =
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 767px)')
+      : null;
+  private onMqlChange = (e: MediaQueryListEvent): void =>
+    this.isMobile.set(e.matches);
+
   // Gestión de columnas
   activeColumnMenuId = signal<string | null>(null);
   editingColumnId = signal<string | null>(null);
@@ -41,6 +58,11 @@ export class BoardDetailComponent implements OnInit, OnDestroy {
   private socketSub: Subscription | null = null;
 
   ngOnInit(): void {
+    if (this.mql) {
+      this.isMobile.set(this.mql.matches);
+      this.mql.addEventListener('change', this.onMqlChange);
+    }
+
     const lookupId = extractBoardId(this.route.snapshot.paramMap.get('id') ?? '');
 
     this.socketSvc.connect();
@@ -59,6 +81,7 @@ export class BoardDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.mql?.removeEventListener('change', this.onMqlChange);
     this.socketSub?.unsubscribe();
     this.socketSvc.disconnect();
   }
@@ -192,6 +215,66 @@ export class BoardDetailComponent implements OnInit, OnDestroy {
         this.lastMovedCardId = null;
         this.board.set(snapshot);
       }
+    });
+  }
+
+  /**
+   * Alternativa táctil al drag&drop (mobile): mueve una card al final de
+   * otra columna desde el menú "Mover a…". Replica el flujo de onDrop:
+   * update optimista, persistencia y emisión por socket con rollback.
+   */
+  onCardMoved(payload: { cardId: string; targetColumnId: string }): void {
+    const current = this.board();
+    if (!current) return;
+
+    let card: Card | undefined;
+    let srcColId: string | undefined;
+    for (const col of current.columns) {
+      const found = col.cards.find(c => c.id === payload.cardId);
+      if (found) { card = found; srcColId = col.id; break; }
+    }
+
+    const target = current.columns.find(c => c.id === payload.targetColumnId);
+    if (!card || !srcColId || !target || srcColId === target.id) return;
+
+    const newPosition = target.cards.length; // se agrega al final del destino
+    const movedCard = card;
+    const snapshot = current;
+
+    this.updateBoard(board => ({
+      ...board,
+      columns: board.columns.map(col => {
+        if (col.id === srcColId) {
+          return { ...col, cards: col.cards.filter(c => c.id !== movedCard.id) };
+        }
+        if (col.id === target.id) {
+          return {
+            ...col,
+            cards: [
+              ...col.cards,
+              { ...movedCard, columnId: target.id, order: newPosition },
+            ],
+          };
+        }
+        return col;
+      }),
+    }));
+
+    this.lastMovedCardId = movedCard.id;
+
+    this.boardSvc.updateCardPosition(movedCard.id, target.id, newPosition).subscribe({
+      next: () => {
+        this.socketSvc.emitCardMoved({
+          boardId: this.boardId,
+          cardId: movedCard.id,
+          newColumnId: target.id,
+          newPosition,
+        });
+      },
+      error: () => {
+        this.lastMovedCardId = null;
+        this.board.set(snapshot);
+      },
     });
   }
 

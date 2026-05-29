@@ -25,9 +25,17 @@ export class ColumnComponent {
   @Input() isEditing = false;
   /** Valor actual del input de renombrado (controlado por el padre). */
   @Input() editingName = '';
+  /** Todas las columnas del tablero, para el menú "Mover a…" de las cards. */
+  @Input() allColumns: { id: string; title: string }[] = [];
+  /** En mobile el drag de cards se desactiva en favor del menú "Mover a…". */
+  @Input() dragDisabled = false;
 
   @Output() cardAdded = new EventEmitter<AddCardEvent>();
   @Output() cardDeleted = new EventEmitter<string>();
+  @Output() cardMoved = new EventEmitter<{
+    cardId: string;
+    targetColumnId: string;
+  }>();
   @Output() dropped = new EventEmitter<CdkDragDrop<Card[]>>();
 
   @Output() menuToggled = new EventEmitter<Event>();

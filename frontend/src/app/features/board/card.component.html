@@ -1,20 +1,57 @@
-<div class="card" cdkDrag>
+<div class="card" cdkDrag [cdkDragDisabled]="dragDisabled">
   <div class="card__placeholder" *cdkDragPlaceholder></div>
 
   <div class="card__body">
     <span class="card__title">{{ card.title }}</span>
+
+    <!-- Desktop: borrar directo al hover. -->
     <button
       class="card__delete"
       type="button"
-      (click)="cardDeleted.emit(card.id)"
+      (click)="remove($event)"
       title="Eliminar"
       aria-label="Eliminar tarjeta"
     >
       ✕
+    </button>
+
+    <!-- Mobile: menú de acciones (mover / eliminar), alternativa al drag. -->
+    <button
+      class="card__menu-btn"
+      type="button"
+      (click)="toggleMenu($event)"
+      title="Acciones de la tarjeta"
+      aria-label="Acciones de la tarjeta"
+      [attr.aria-expanded]="menuOpen()"
+    >
+      <i class="ti ti-dots-vertical" aria-hidden="true"></i>
     </button>
   </div>
 
   <div class="card__footer">
     <span class="card__id">KAN-{{ card.number }}</span>
   </div>
+
+  @if (menuOpen()) {
+    <div class="card__menu" (click)="$event.stopPropagation()">
+      @if (moveTargets().length) {
+        <p class="card__menu-label">Mover a</p>
+        @for (col of moveTargets(); track col.id) {
+          <button
+            class="card__menu-item"
+            type="button"
+            (click)="moveTo(col.id, $event)"
+          >
+            <i class="ti ti-arrow-right" aria-hidden="true"></i>
+            <span class="card__menu-text">{{ col.title }}</span>
+          </button>
+        }
+        <div class="card__menu-sep"></div>
+      }
+      <button class="card__menu-item danger" type="button" (click)="remove($event)">
+        <i class="ti ti-trash" aria-hidden="true"></i>
+        <span>Eliminar</span>
+      </button>
+    </div>
+  }
 </div>

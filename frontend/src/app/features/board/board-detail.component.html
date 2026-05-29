@@ -28,8 +28,9 @@
            cdkDropList padre corta la herencia de grupo de las listas anidadas. -->
       <div
         class="columns-row"
+        [class.columns-row--stacked]="isMobile()"
         cdkDropList
-        cdkDropListOrientation="horizontal"
+        [cdkDropListOrientation]="isMobile() ? 'vertical' : 'horizontal'"
         [cdkDropListData]="b.columns"
         (cdkDropListDropped)="onColumnDrop($event)"
       >
@@ -38,6 +39,8 @@
             cdkDrag
             [column]="col"
             [connectedTo]="columnIds()"
+            [allColumns]="columnSummaries()"
+            [dragDisabled]="isMobile()"
             [activeMenu]="activeColumnMenuId() === col.id"
             [isEditing]="editingColumnId() === col.id"
             [editingName]="editingColumnName()"
@@ -49,6 +52,7 @@
             (editingNameChanged)="editingColumnName.set($event)"
             (cardAdded)="onCardAdded($event)"
             (cardDeleted)="onCardDeleted($event)"
+            (cardMoved)="onCardMoved($event)"
             (dropped)="onDrop($event)"
           />
         }
@@ -82,4 +86,8 @@
       <p class="state-msg">No se encontró el tablero.</p>
     }
   </main>
+
+  <footer class="app-footer">
+    Developed by <a href="https://github.com/ronaldoucl" target="_blank" rel="noopener">RonaldoScript</a>
+  </footer>
 </div>

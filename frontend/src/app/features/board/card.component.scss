@@ -1,7 +1,8 @@
 .card {
+  position: relative;
   background: var(--color-surface-card);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   margin-bottom: 8px;
   cursor: grab;
@@ -10,6 +11,9 @@
 
 .card:hover {
   border-color: var(--color-brand-mid);
+  box-shadow: var(--shadow-sm);
+
+  .card__delete { opacity: 1; }
 }
 
 .card:active {
@@ -27,6 +31,10 @@
   font-size: 13px;
   color: var(--color-text-primary);
   line-height: 1.4;
+  /* evita que un texto largo sin espacios desborde la card */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .card__delete {
@@ -34,14 +42,28 @@
   border: none;
   cursor: pointer;
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1;
-  padding: 0;
   flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin: -6px -6px 0 0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 
 .card__delete:hover {
   color: var(--color-danger);
+  background: var(--color-danger-light);
+}
+
+/* En táctil no hay hover: el botón de borrar debe estar siempre visible. */
+@media (hover: none) {
+  .card__delete { opacity: 1; }
 }
 
 .card__footer {
@@ -57,7 +79,131 @@
 .card__placeholder {
   background: var(--color-brand-light);
   border: 1px dashed var(--color-brand-mid);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   height: 52px;
   margin-bottom: 8px;
+}
+
+/* ============================================================
+   Menú de acciones de la card (mover / eliminar)
+   Oculto en desktop (allí se usa drag&drop + la × al hover); visible en
+   mobile como alternativa táctil cómoda.
+   ============================================================ */
+.card__menu-btn {
+  display: none; /* se activa en mobile */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin: -6px -6px 0 0;
+  border-radius: var(--radius-sm);
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text-secondary);
+  }
+}
+
+.card__menu {
+  position: absolute;
+  top: 38px;
+  right: 8px;
+  z-index: 30;
+  min-width: 180px;
+  max-width: 240px;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+}
+
+.card__menu-label {
+  margin: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.card__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-hover);
+  }
+
+  &.danger {
+    color: var(--color-danger-strong);
+    &:hover {
+      background: var(--color-danger-light);
+    }
+  }
+
+  i {
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+}
+
+.card__menu-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__menu-sep {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+/* ---- Mobile: card más legible y cómoda al tacto ---- */
+@media (max-width: 767px) {
+  .card {
+    padding: 14px;
+    margin-bottom: 12px;
+    cursor: default; /* el drag se reemplaza por el menú "Mover a…" */
+  }
+
+  .card:active {
+    cursor: default;
+  }
+
+  .card__title {
+    font-size: 15px;
+  }
+
+  .card__id {
+    font-size: 12px;
+  }
+
+  /* En mobile las acciones viven en el menú; ocultamos la × directa
+     para evitar toques accidentales. */
+  .card__delete {
+    display: none;
+  }
+
+  .card__menu-btn {
+    display: flex;
+  }
 }

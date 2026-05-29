@@ -14,6 +14,31 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  /* La columna llena la altura de la fila (altura uniforme entre columnas);
+     así el área de tarjetas scrollea en vez de desbordar y la columna no
+     queda corta flotando arriba. */
+  height: 100%;
+  min-height: 0;
+}
+
+/* En mobile (≤767px) la columna es una sección de ancho completo y altura
+   automática: crece con su contenido y deja el scroll al documento. */
+@media (max-width: 767px) {
+  .column {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
+  .column__cards {
+    flex: 0 1 auto;
+    min-height: 4px;
+    overflow-y: visible;
+    /* sin compensación de scrollbar interna: en mobile no hay scroll propio */
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .column__header {
@@ -26,17 +51,20 @@
 /* ---- Gestión de columna (handle, menú, renombrado) ---- */
 .col-drag-handle {
   cursor: grab;
-  color: #A1A5B7;
-  font-size: 14px;
+  color: var(--color-text-muted);
+  font-size: 16px;
   display: flex;
   align-items: center;
+  padding: 4px;
+  margin: -4px;
+  touch-action: none;
   &:active { cursor: grabbing; }
 }
 
 .col-menu-btn {
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
   background: transparent;
   border: none;
   display: flex;
@@ -44,38 +72,45 @@
   justify-content: center;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s;
-  color: #5E6278;
+  transition: opacity 0.15s, background 0.15s;
+  color: var(--color-text-secondary);
   font-size: 14px;
   margin-left: auto;
+
+  &:hover { background: var(--color-brand-light); }
 }
 
 .col-header:hover .col-menu-btn { opacity: 1; }
 
+/* En táctil no hay hover: el menú debe quedar siempre visible. */
+@media (hover: none) {
+  .col-menu-btn { opacity: 1; }
+}
+
 .col-dropdown {
   position: absolute;
-  top: 36px;
+  top: 40px;
   right: 8px;
-  background: #fff;
-  border: 0.5px solid #E4E6EF;
-  border-radius: 6px;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
   padding: 4px;
-  width: 160px;
+  width: 170px;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .col-dropdown-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
   cursor: pointer;
-  color: #181C32;
-  &:hover { background: #F5F6F8; }
-  &.danger { color: #A32D2D; &:hover { background: #FCEBEB; } }
+  color: var(--color-text-primary);
+  &:hover { background: var(--color-surface-hover); }
+  &.danger { color: var(--color-danger-strong); &:hover { background: var(--color-danger-light); } }
   i { font-size: 14px; }
 }
 
@@ -85,11 +120,11 @@
 
 .col-rename-input {
   width: 100%;
-  border: 1px solid #1B3A6B;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  color: #181C32;
+  border: 1px solid var(--color-brand);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 14px;
+  color: var(--color-text-primary);
   outline: none;
   margin-bottom: 6px;
   box-sizing: border-box;
@@ -104,31 +139,35 @@
 /* Botones compartidos con el formulario de nueva columna del padre; se
    redefinen aquí porque el encapsulado de estilos los limita a este componente. */
 .btn-confirm {
-  background: #1B3A6B;
+  background: var(--color-brand);
   color: #fff;
   border: none;
-  border-radius: 4px;
-  width: 28px;
-  height: 28px;
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 13px;
+
+  &:hover { background: var(--color-brand-hover); }
 }
 
 .btn-cancel {
-  background: #F5F6F8;
-  color: #5E6278;
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
   border: none;
-  border-radius: 4px;
-  width: 28px;
-  height: 28px;
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 13px;
+
+  &:hover { color: var(--color-text-primary); }
 }
 
 .column__title {
@@ -137,6 +176,9 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .column__count {
@@ -146,10 +188,29 @@
   color: var(--color-brand);
   padding: 1px 8px;
   border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .column__cards {
-  min-height: 24px;
+  /* Absorbe el alto restante de la columna y scrollea verticalmente cuando
+     hay muchas tarjetas, manteniendo el header fijo arriba. min-height:0 es
+     necesario para que el contenedor flex pueda encogerse y scrollear. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* Margen negativo + padding para que la scrollbar no quede pegada al
+     borde y respire respecto al contenido. */
+  margin: 0 -4px -4px;
+  padding: 0 4px 4px;
+
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-track { background: transparent; }
 }
 
 /* card en arrastre dentro de la columna */
@@ -162,8 +223,8 @@
   border: 1px dashed var(--color-border);
   background: none;
   color: var(--color-text-muted);
-  border-radius: 4px;
-  padding: 8px;
+  border-radius: var(--radius-sm);
+  padding: 10px;
   font-size: 13px;
   text-align: center;
   transition: border-color 0.15s ease, color 0.15s ease;
@@ -181,7 +242,7 @@
 }
 
 .add-card input {
-  height: 36px;
+  height: 40px;
   padding: 0 10px;
 }
 
@@ -191,8 +252,8 @@
 }
 
 .btn-brand-sm {
-  height: 32px;
-  padding: 0 12px;
+  height: 36px;
+  padding: 0 14px;
   background: var(--color-brand);
   color: #fff;
   border: none;
@@ -206,8 +267,8 @@
 }
 
 .btn-ghost-sm {
-  height: 32px;
-  padding: 0 12px;
+  height: 36px;
+  padding: 0 14px;
   background: none;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
