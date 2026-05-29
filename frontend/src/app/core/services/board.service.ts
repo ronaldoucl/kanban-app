@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Card {
   id: string;
@@ -37,7 +38,7 @@ interface ApiResponse<T> {
 
 @Injectable({ providedIn: 'root' })
 export class BoardService {
-  private readonly apiUrl = 'http://localhost:3000';
+  private readonly apiUrl = environment.apiUrl;
   private http = inject(HttpClient);
 
   getBoards(): Observable<Board[]> {

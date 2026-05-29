@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, fromEvent } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { environment } from '../../../environments/environment';
 
 export interface CardMovedPayload {
   boardId: string;
@@ -12,7 +13,7 @@ export interface CardMovedPayload {
 @Injectable({ providedIn: 'root' })
 export class SocketService {
   private socket: Socket | null = null;
-  private readonly serverUrl = 'http://localhost:3000';
+  private readonly serverUrl = environment.socketUrl;
 
   connect(): void {
     if (this.socket?.connected) return;
