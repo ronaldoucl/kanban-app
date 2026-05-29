@@ -8,6 +8,23 @@ const renameBoardSchema = z.object({
   title: z.string().min(1, 'El título es requerido'),
 });
 
+// La API de columnas acepta `name` en el body (según especificación), pero el
+// modelo Prisma persiste el valor en el campo `title`.
+const columnNameSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+});
+
+const reorderColumnsSchema = z.object({
+  columns: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        order: z.number().int(),
+      }),
+    )
+    .min(1, 'Se requiere al menos una columna'),
+});
+
 const DEFAULT_COLUMNS = ['Por hacer', 'En progreso', 'Hecho'];
 
 export async function getBoards(req: Request, res: Response): Promise<void> {
@@ -146,6 +163,133 @@ export async function renameBoard(req: Request, res: Response): Promise<void> {
     });
 
     res.json({ data: updatedBoard, error: null, message: 'Board renamed' });
+  } catch {
+    res.status(500).json({ data: null, error: 'Error interno del servidor', message: null });
+  }
+}
+
+export async function createColumn(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const { boardId } = req.params;
+
+    const result = columnNameSchema.safeParse(req.body);
+    if (!result.success) {
+      const message = result.error.errors.map((e) => e.message).join(', ');
+      res.status(400).json({ data: null, error: message, message: null });
+      return;
+    }
+
+    const board = await prisma.board.findUnique({ where: { id: boardId } });
+    if (!board) {
+      res.status(404).json({ data: null, error: 'Board no encontrado', message: null });
+      return;
+    }
+    if (board.ownerId !== userId) {
+      res.status(403).json({ data: null, error: 'No autorizado', message: null });
+      return;
+    }
+
+    const order = await prisma.column.count({ where: { boardId } });
+    const column = await prisma.column.create({
+      data: { title: result.data.name, order, boardId },
+    });
+
+    res.status(201).json({ data: column, error: null, message: 'Column created' });
+  } catch {
+    res.status(500).json({ data: null, error: 'Error interno del servidor', message: null });
+  }
+}
+
+export async function renameColumn(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const { boardId, id } = req.params;
+
+    const result = columnNameSchema.safeParse(req.body);
+    if (!result.success) {
+      const message = result.error.errors.map((e) => e.message).join(', ');
+      res.status(400).json({ data: null, error: message, message: null });
+      return;
+    }
+
+    const board = await prisma.board.findUnique({ where: { id: boardId } });
+    if (!board) {
+      res.status(404).json({ data: null, error: 'Board no encontrado', message: null });
+      return;
+    }
+    if (board.ownerId !== userId) {
+      res.status(403).json({ data: null, error: 'No autorizado', message: null });
+      return;
+    }
+
+    const column = await prisma.column.update({
+      where: { id },
+      data: { title: result.data.name },
+    });
+
+    res.json({ data: column, error: null, message: 'Column renamed' });
+  } catch {
+    res.status(500).json({ data: null, error: 'Error interno del servidor', message: null });
+  }
+}
+
+export async function deleteColumn(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const { boardId, id } = req.params;
+
+    const board = await prisma.board.findUnique({ where: { id: boardId } });
+    if (!board) {
+      res.status(404).json({ data: null, error: 'Board no encontrado', message: null });
+      return;
+    }
+    if (board.ownerId !== userId) {
+      res.status(403).json({ data: null, error: 'No autorizado', message: null });
+      return;
+    }
+
+    // El schema de Prisma elimina en cascada las cards asociadas (onDelete: Cascade).
+    await prisma.column.delete({ where: { id } });
+
+    res.json({ data: null, error: null, message: 'Column deleted' });
+  } catch {
+    res.status(500).json({ data: null, error: 'Error interno del servidor', message: null });
+  }
+}
+
+export async function reorderColumns(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user!.id;
+    const { boardId } = req.params;
+
+    const result = reorderColumnsSchema.safeParse(req.body);
+    if (!result.success) {
+      const message = result.error.errors.map((e) => e.message).join(', ');
+      res.status(400).json({ data: null, error: message, message: null });
+      return;
+    }
+
+    const board = await prisma.board.findUnique({ where: { id: boardId } });
+    if (!board) {
+      res.status(404).json({ data: null, error: 'Board no encontrado', message: null });
+      return;
+    }
+    if (board.ownerId !== userId) {
+      res.status(403).json({ data: null, error: 'No autorizado', message: null });
+      return;
+    }
+
+    await prisma.$transaction(
+      result.data.columns.map((column) =>
+        prisma.column.update({
+          where: { id: column.id },
+          data: { order: column.order },
+        }),
+      ),
+    );
+
+    res.json({ data: null, error: null, message: 'Columns reordered' });
   } catch {
     res.status(500).json({ data: null, error: 'Error interno del servidor', message: null });
   }

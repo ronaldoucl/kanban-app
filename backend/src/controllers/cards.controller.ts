@@ -7,13 +7,34 @@ export async function createCard(req: Request, res: Response): Promise<void> {
   try {
     const { title, columnId } = req.body as { title: string; columnId: string };
 
+    const column = await prisma.column.findUnique({
+      where: { id: columnId },
+      select: { boardId: true },
+    });
+    if (!column) {
+      res.status(404).json({ data: null, error: 'Columna no encontrada', message: null });
+      return;
+    }
+
     const lastCard = await prisma.card.findFirst({
       where: { columnId },
       orderBy: { order: 'desc' },
     });
-
     const order = lastCard ? lastCard.order + 1 : 0;
-    const card = await prisma.card.create({ data: { title, columnId, order } });
+
+    // El número de tarea es secuencial por tablero (estilo KAN-1, KAN-2, ...).
+    // Usamos un contador en Board para que sea único, persistente y no se
+    // reutilice aunque se eliminen cards.
+    const card = await prisma.$transaction(async (tx) => {
+      const board = await tx.board.update({
+        where: { id: column.boardId },
+        data: { cardSeq: { increment: 1 } },
+        select: { cardSeq: true },
+      });
+      return tx.card.create({
+        data: { title, columnId, order, number: board.cardSeq },
+      });
+    });
 
     res.status(201).json({ data: card, error: null, message: 'Card creada exitosamente' });
   } catch {

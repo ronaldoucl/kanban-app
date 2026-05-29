@@ -1,13 +1,54 @@
 <div class="column">
-  <div class="column__header">
-    <span class="column__title">{{ column.title }}</span>
-    <span class="column__count">{{ column.cards.length }}</span>
+  <div class="column__header col-header">
+    <span cdkDragHandle class="col-drag-handle">
+      <i class="ti ti-grip-vertical" aria-hidden="true"></i>
+    </span>
+
+    @if (isEditing) {
+      <div class="col-rename-wrap">
+        <input
+          class="col-rename-input"
+          [value]="editingName"
+          (input)="editingNameChanged.emit($any($event.target).value)"
+          (keydown.enter)="renameConfirmed.emit()"
+          (keydown.escape)="renameCancelled.emit()"
+          (click)="$event.stopPropagation()"
+          autofocus
+        />
+        <div class="col-rename-actions">
+          <button class="btn-confirm" (click)="renameConfirmed.emit()">
+            <i class="ti ti-check" aria-hidden="true"></i>
+          </button>
+          <button class="btn-cancel" (click)="renameCancelled.emit()">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    } @else {
+      <span class="column__title">{{ column.title }}</span>
+      <span class="column__count">{{ column.cards.length }}</span>
+      <button class="col-menu-btn" (click)="menuToggled.emit($event)">
+        <i class="ti ti-dots" aria-hidden="true"></i>
+      </button>
+
+      @if (activeMenu) {
+        <div class="col-dropdown">
+          <div class="col-dropdown-item" (click)="renameStarted.emit($event)">
+            <i class="ti ti-pencil" aria-hidden="true"></i> Renombrar
+          </div>
+          <div class="col-dropdown-item danger" (click)="columnDeleted.emit()">
+            <i class="ti ti-trash" aria-hidden="true"></i> Eliminar columna
+          </div>
+        </div>
+      }
+    }
   </div>
 
   <div
     cdkDropList
     [id]="column.id"
     [cdkDropListData]="column.cards"
+    [cdkDropListConnectedTo]="connectedTo"
     class="column__cards"
     (cdkDropListDropped)="dropped.emit($event)"
   >

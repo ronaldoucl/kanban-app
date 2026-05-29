@@ -39,6 +39,11 @@ export class BoardsComponent implements OnInit {
 
   logout(): void { this.auth.logout(); }
 
+  /** Total de tareas del tablero, sumando las cards de todas sus columnas. */
+  totalTasks(board: Board): number {
+    return board.columns.reduce((sum, col) => sum + (col.cards?.length ?? 0), 0);
+  }
+
   openBoard(board: Board): void {
     this.router.navigate(['/boards', buildBoardPath(board)]);
   }

@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../core/services/auth.service';
-import { BoardService, Board, Card } from '../../core/services/board.service';
+import { BoardService, Board, Card, Column } from '../../core/services/board.service';
 import { SocketService, CardMovedPayload } from '../../core/services/socket.service';
 import { ColumnComponent, AddCardEvent } from './column.component';
 import { extractBoardId } from './board-url.util';
@@ -24,6 +24,16 @@ export class BoardDetailComponent implements OnInit, OnDestroy {
 
   board = signal<Board | null>(null);
   loading = signal(true);
+
+  /** IDs de todas las columnas; usado para conectar las listas de cards (DnD). */
+  columnIds = computed(() => this.board()?.columns.map(col => col.id) ?? []);
+
+  // Gestión de columnas
+  activeColumnMenuId = signal<string | null>(null);
+  editingColumnId = signal<string | null>(null);
+  editingColumnName = signal<string>('');
+  showNewColumnInput = signal<boolean>(false);
+  newColumnName = signal<string>('');
 
   private boardId = '';
   /** ID de la última card movida localmente para evitar aplicar el eco del socket. */
@@ -183,5 +193,102 @@ export class BoardDetailComponent implements OnInit, OnDestroy {
         this.board.set(snapshot);
       }
     });
+  }
+
+  // ---- Gestión de columnas ----
+
+  toggleColumnMenu(columnId: string, event: Event): void {
+    event.stopPropagation();
+    this.activeColumnMenuId.set(this.activeColumnMenuId() === columnId ? null : columnId);
+  }
+
+  startRenameColumn(column: Column, event: Event): void {
+    event.stopPropagation();
+    this.editingColumnId.set(column.id);
+    this.editingColumnName.set(column.title);
+    this.activeColumnMenuId.set(null);
+  }
+
+  confirmRenameColumn(columnId: string): void {
+    const name = this.editingColumnName().trim();
+    if (!name) {
+      this.cancelRenameColumn();
+      return;
+    }
+
+    this.boardSvc.renameColumn(this.boardId, columnId, name).subscribe({
+      next: () => {
+        this.updateBoard(board => ({
+          ...board,
+          columns: board.columns.map(col =>
+            col.id === columnId ? { ...col, title: name } : col
+          )
+        }));
+        this.editingColumnId.set(null);
+      },
+      // Si falla, se mantiene el modo edición para que el usuario reintente.
+      error: () => {}
+    });
+  }
+
+  cancelRenameColumn(): void {
+    this.editingColumnId.set(null);
+  }
+
+  deleteColumn(columnId: string): void {
+    this.activeColumnMenuId.set(null);
+
+    // Optimista: quitamos la columna de inmediato y restauramos si la API falla.
+    const snapshot = this.board();
+    this.updateBoard(board => ({
+      ...board,
+      columns: board.columns.filter(col => col.id !== columnId)
+    }));
+
+    this.boardSvc.deleteColumn(this.boardId, columnId).subscribe({
+      error: () => this.board.set(snapshot)
+    });
+  }
+
+  addColumn(): void {
+    const name = this.newColumnName().trim();
+    if (!name) return;
+
+    this.boardSvc.createColumn(this.boardId, name).subscribe({
+      next: newColumn => {
+        this.updateBoard(board => ({
+          ...board,
+          // La nueva columna se agrega al final del tablero.
+          columns: [...board.columns, { ...newColumn, cards: newColumn.cards ?? [] }]
+        }));
+        this.newColumnName.set('');
+        this.showNewColumnInput.set(false);
+      },
+      // Si falla, se conserva el texto y el formulario abierto para reintentar.
+      error: () => {}
+    });
+  }
+
+  onColumnDrop(event: CdkDragDrop<Column[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+
+    const snapshot = this.board();
+
+    this.updateBoard(board => {
+      const columns = [...board.columns];
+      moveItemInArray(columns, event.previousIndex, event.currentIndex);
+      // El índice visual pasa a ser el nuevo valor de order (0-based).
+      return { ...board, columns: columns.map((col, index) => ({ ...col, order: index })) };
+    });
+
+    const columns = this.board()!.columns.map((col, index) => ({ id: col.id, order: index }));
+    this.boardSvc.reorderColumns(this.boardId, columns).subscribe({
+      error: () => this.board.set(snapshot)
+    });
+  }
+
+  @HostListener('document:click')
+  closeColumnMenu(): void {
+    this.activeColumnMenuId.set(null);
   }
 }

@@ -8,6 +8,8 @@ export interface Card {
   title: string;
   description: string | null;
   order: number;
+  /** Número de tarea secuencial por tablero (se muestra como KAN-{number}). */
+  number: number;
   columnId: string;
   createdAt: string;
   updatedAt: string;
@@ -89,6 +91,30 @@ export class BoardService {
   deleteCard(cardId: string): Observable<void> {
     return this.http
       .delete<ApiResponse<null>>(`${this.apiUrl}/cards/${cardId}`)
+      .pipe(map(() => undefined));
+  }
+
+  createColumn(boardId: string, name: string): Observable<Column> {
+    return this.http
+      .post<ApiResponse<Column>>(`${this.apiUrl}/boards/${boardId}/columns`, { name })
+      .pipe(map(res => res.data));
+  }
+
+  renameColumn(boardId: string, columnId: string, name: string): Observable<Column> {
+    return this.http
+      .patch<ApiResponse<Column>>(`${this.apiUrl}/boards/${boardId}/columns/${columnId}`, { name })
+      .pipe(map(res => res.data));
+  }
+
+  deleteColumn(boardId: string, columnId: string): Observable<void> {
+    return this.http
+      .delete<ApiResponse<null>>(`${this.apiUrl}/boards/${boardId}/columns/${columnId}`)
+      .pipe(map(() => undefined));
+  }
+
+  reorderColumns(boardId: string, columns: { id: string; order: number }[]): Observable<void> {
+    return this.http
+      .patch<ApiResponse<null>>(`${this.apiUrl}/boards/${boardId}/columns/reorder`, { columns })
       .pipe(map(() => undefined));
   }
 }

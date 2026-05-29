@@ -21,14 +21,61 @@
         <span class="breadcrumb__current">{{ b.title }}</span>
       </nav>
 
-      <div class="columns-row" cdkDropListGroup>
+      <!-- Lista horizontal para reordenar columnas. Las columnas son hijas
+           DIRECTAS del cdkDropList (requisito de CDK para que el reordenamiento
+           funcione). Las listas de cards se conectan entre sí vía
+           cdkDropListConnectedTo en lugar de cdkDropListGroup, porque un
+           cdkDropList padre corta la herencia de grupo de las listas anidadas. -->
+      <div
+        class="columns-row"
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        [cdkDropListData]="b.columns"
+        (cdkDropListDropped)="onColumnDrop($event)"
+      >
         @for (col of b.columns; track col.id) {
           <app-column
+            cdkDrag
             [column]="col"
+            [connectedTo]="columnIds()"
+            [activeMenu]="activeColumnMenuId() === col.id"
+            [isEditing]="editingColumnId() === col.id"
+            [editingName]="editingColumnName()"
+            (menuToggled)="toggleColumnMenu(col.id, $event)"
+            (renameStarted)="startRenameColumn(col, $event)"
+            (renameConfirmed)="confirmRenameColumn(col.id)"
+            (renameCancelled)="cancelRenameColumn()"
+            (columnDeleted)="deleteColumn(col.id)"
+            (editingNameChanged)="editingColumnName.set($event)"
             (cardAdded)="onCardAdded($event)"
             (cardDeleted)="onCardDeleted($event)"
             (dropped)="onDrop($event)"
           />
+        }
+
+        @if (!showNewColumnInput()) {
+          <div class="new-col-btn" (click)="showNewColumnInput.set(true)">
+            <i class="ti ti-plus" aria-hidden="true"></i> Nueva columna
+          </div>
+        } @else {
+          <div class="new-col-form">
+            <input
+              [value]="newColumnName()"
+              (input)="newColumnName.set($any($event.target).value)"
+              (keydown.enter)="addColumn()"
+              (keydown.escape)="showNewColumnInput.set(false)"
+              placeholder="Nombre de la columna"
+              autofocus
+            />
+            <div class="new-col-actions">
+              <button class="btn-confirm" (click)="addColumn()">
+                <i class="ti ti-check" aria-hidden="true"></i>
+              </button>
+              <button class="btn-cancel" (click)="showNewColumnInput.set(false)">
+                <i class="ti ti-x" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
         }
       </div>
     } @else {

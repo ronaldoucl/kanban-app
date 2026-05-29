@@ -1,7 +1,17 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { authGuard } from '../middleware/auth.middleware';
-import { getBoards, getBoardById, createBoard, deleteBoard, renameBoard } from '../controllers/boards.controller';
+import {
+  getBoards,
+  getBoardById,
+  createBoard,
+  deleteBoard,
+  renameBoard,
+  createColumn,
+  renameColumn,
+  deleteColumn,
+  reorderColumns,
+} from '../controllers/boards.controller';
 
 const router = Router();
 
@@ -28,5 +38,12 @@ router.get('/:id', getBoardById);
 router.post('/', validate(createBoardSchema), createBoard);
 router.patch('/:id', renameBoard);
 router.delete('/:id', deleteBoard);
+
+// Columnas. `reorder` debe declararse antes de `/columns/:id` para que no sea
+// capturado como un id.
+router.post('/:boardId/columns', createColumn);
+router.patch('/:boardId/columns/reorder', reorderColumns);
+router.patch('/:boardId/columns/:id', renameColumn);
+router.delete('/:boardId/columns/:id', deleteColumn);
 
 export default router;

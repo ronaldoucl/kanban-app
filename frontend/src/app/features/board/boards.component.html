@@ -67,7 +67,7 @@
           <div class="board-card" (click)="openBoard(board)">
             @if (editingBoardId() !== board.id) {
               <p class="board-title">{{ board.title }}</p>
-              <p class="board-meta">{{ board.columns.length }} columnas</p>
+              <p class="board-meta">{{ board.columns.length }} columnas, {{ totalTasks(board) }} tareas</p>
               <button
                 class="board-menu-btn"
                 (click)="toggleMenu(board.id, $event)"

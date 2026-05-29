@@ -21,6 +21,7 @@ model User {
 model Board {
   id        String   @id @default(cuid())
   title     String
+  cardSeq   Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ownerId   String
@@ -44,6 +45,7 @@ model Card {
   title       String
   description String?
   order       Int
+  number      Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   columnId    String
