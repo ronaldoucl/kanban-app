@@ -17,8 +17,8 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  register(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, { email, password }).pipe(
+  register(username: string, email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, { username, email, password }).pipe(
       tap(res => this.saveToken(res.data.token))
     );
   }

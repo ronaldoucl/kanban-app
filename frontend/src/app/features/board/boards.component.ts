@@ -222,7 +222,8 @@ export class BoardsComponent implements OnInit, OnDestroy {
           if (isSameColumn && col.id === srcColId) {
             const cards = [...col.cards];
             moveItemInArray(cards, event.previousIndex, event.currentIndex);
-            return { ...col, cards };
+            // Recalcular order para que coincida con la posición visual (0-based)
+            return { ...col, cards: cards.map((c, index) => ({ ...c, order: index })) };
           }
           if (!isSameColumn && col.id === srcColId) {
             const cards = [...col.cards];

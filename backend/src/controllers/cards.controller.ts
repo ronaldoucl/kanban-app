@@ -62,13 +62,35 @@ export async function updateCard(req: Request, res: Response): Promise<void> {
           where: { columnId: existing.columnId, order: { gt: existing.order } },
           data: { order: { decrement: 1 } },
         });
-      }
 
-      // Abrir espacio en columna destino
-      await tx.card.updateMany({
-        where: { columnId: targetColumnId, id: { not: id }, order: { gte: targetOrder } },
-        data: { order: { increment: 1 } },
-      });
+        // Abrir espacio en columna destino
+        await tx.card.updateMany({
+          where: { columnId: targetColumnId, id: { not: id }, order: { gte: targetOrder } },
+          data: { order: { increment: 1 } },
+        });
+      } else if (targetOrder > existing.order) {
+        // Reordenar dentro de la misma columna (mover hacia abajo):
+        // las cards entre la posición vieja y la nueva suben una posición
+        await tx.card.updateMany({
+          where: {
+            columnId: targetColumnId,
+            id: { not: id },
+            order: { gt: existing.order, lte: targetOrder },
+          },
+          data: { order: { decrement: 1 } },
+        });
+      } else if (targetOrder < existing.order) {
+        // Reordenar dentro de la misma columna (mover hacia arriba):
+        // las cards entre la posición nueva y la vieja bajan una posición
+        await tx.card.updateMany({
+          where: {
+            columnId: targetColumnId,
+            id: { not: id },
+            order: { gte: targetOrder, lt: existing.order },
+          },
+          data: { order: { increment: 1 } },
+        });
+      }
 
       await tx.card.update({
         where: { id },

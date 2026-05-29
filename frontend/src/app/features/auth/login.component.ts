@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   template: `
     <div class="login-container">
       <h2>Iniciar sesión</h2>
@@ -26,6 +26,9 @@ import { AuthService } from '../../core/services/auth.service';
           {{ loading() ? 'Ingresando...' : 'Ingresar' }}
         </button>
       </form>
+      <p class="switch-link">
+        ¿No tenés una cuenta? <a routerLink="/register">Registrate</a>
+      </p>
     </div>
   `,
   styles: [`
@@ -34,6 +37,7 @@ import { AuthService } from '../../core/services/auth.service';
     input { padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
     button { width: 100%; padding: 10px; cursor: pointer; }
     .error { color: red; font-size: 13px; }
+    .switch-link { margin-top: 16px; font-size: 13px; text-align: center; }
   `]
 })
 export class LoginComponent {
@@ -57,7 +61,7 @@ export class LoginComponent {
     this.auth.login(email!, password!).subscribe({
       next: () => this.router.navigate(['/boards']),
       error: (err) => {
-        this.errorMsg.set(err?.error?.message ?? 'Credenciales inválidas');
+        this.errorMsg.set(err?.error?.error || 'Login failed. Please try again.');
         this.loading.set(false);
       }
     });

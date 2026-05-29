@@ -18,7 +18,7 @@ export function authGuard(req: Request, res: Response, next: NextFunction): void
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'No autorizado' });
+    res.status(401).json({ data: null, error: 'Unauthorized', message: 'Invalid or missing token' });
     return;
   }
 
@@ -32,6 +32,6 @@ export function authGuard(req: Request, res: Response, next: NextFunction): void
     req.user = { id: payload.id, email: payload.email };
     next();
   } catch {
-    res.status(401).json({ error: 'No autorizado' });
+    res.status(401).json({ data: null, error: 'Unauthorized', message: 'Invalid or missing token' });
   }
 }

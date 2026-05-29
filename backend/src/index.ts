@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes';
 import boardsRoutes from './routes/boards.routes';
 import cardsRoutes from './routes/cards.routes';
 import { initBoardSocket } from './socket/board.socket';
+import { logger } from './utils/logger';
 
 const app = express();
 const httpServer = createServer(app);
@@ -30,7 +31,7 @@ initBoardSocket(io);
 
 const PORT = process.env.PORT ?? 3000;
 httpServer.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  logger.info(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
 export { io };

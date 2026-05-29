@@ -1,0 +1,9 @@
+# Archivos generados y temporales del backend
+dist/
+*.log
+*.err
+server*.log
+validate*.log
+
+# Variables de entorno (no versionar)
+.env
