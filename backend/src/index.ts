@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import authRoutes from './routes/auth.routes';
@@ -10,13 +11,16 @@ import { logger } from './utils/logger';
 
 const app = express();
 const httpServer = createServer(app);
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:4200';
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:4200',
+    origin: FRONTEND_URL,
     methods: ['GET', 'POST'],
   },
 });
 
+app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json());
 
 app.use('/auth', authRoutes);

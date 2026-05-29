@@ -1,0 +1,51 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__brand">KanFlow</div>
+    <h1 class="auth-card__title">Iniciar sesión</h1>
+    <p class="auth-card__subtitle">Ingresá tus credenciales para continuar.</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="correo@ejemplo.com"
+          autocomplete="email"
+          [class.is-invalid]="isInvalid('email')"
+        />
+        @if (isInvalid('email')) {
+          @if (form.get('email')?.errors?.['required']) {
+            <span class="form-error">El email es obligatorio</span>
+          } @else if (form.get('email')?.errors?.['email']) {
+            <span class="form-error">Ingresá un email válido</span>
+          }
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          [class.is-invalid]="isInvalid('password')"
+        />
+        @if (isInvalid('password') && form.get('password')?.errors?.['required']) {
+          <span class="form-error">La contraseña es obligatoria</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        @if (loading()) { Ingresando… } @else { Ingresar }
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      ¿No tenés una cuenta? <a routerLink="/register">Registrate</a>
+    </p>
+  </div>
+</div>

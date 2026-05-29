@@ -1,1 +1,98 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   Design tokens
+   ============================================================ */
+:root {
+  --color-brand: #1b3a6b;
+  --color-brand-light: #e8edf5;
+  --color-brand-mid: #4a6fa5;
+  --color-surface: #f5f6f8;
+  --color-surface-card: #ffffff;
+  --color-border: #e4e6ef;
+  --color-text-primary: #181c32;
+  --color-text-secondary: #5e6278;
+  --color-text-muted: #a1a5b7;
+  --color-accent-top: #1b3a6b;
+
+  --color-brand-hover: #16315c;
+  --color-danger: #d9534f;
+
+  --radius: 6px;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Form controls
+   ============================================================ */
+button {
+  font-family: inherit;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'] {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
+
+input[type='text']:focus,
+input[type='email']:focus,
+input[type='password']:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.12);
+}
+
+input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   CDK drag & drop visuals (clone vive fuera del componente)
+   ============================================================ */
+.cdk-drag-preview {
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgba(24, 28, 50, 0.2);
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}

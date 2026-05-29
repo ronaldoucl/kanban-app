@@ -10,78 +10,8 @@ import { ColumnComponent, AddCardEvent } from './column.component';
   selector: 'app-boards',
   standalone: true,
   imports: [DragDropModule, ColumnComponent],
-  template: `
-    <div class="boards-shell">
-      <header class="toolbar">
-        <h1>Kanban</h1>
-        <div class="toolbar-actions">
-          @if (!creatingBoard()) {
-            <button class="btn-primary" (click)="creatingBoard.set(true)">+ Nuevo tablero</button>
-          } @else {
-            <input
-              #boardInput
-              type="text"
-              placeholder="Nombre del tablero"
-              (keydown.enter)="addBoard(boardInput.value)"
-              (keydown.escape)="creatingBoard.set(false)"
-              autofocus
-            />
-            <button class="btn-primary" (click)="addBoard(boardInput.value)">Crear</button>
-            <button class="btn-secondary" (click)="creatingBoard.set(false)">Cancelar</button>
-          }
-          <button class="btn-secondary" (click)="logout()">Salir</button>
-        </div>
-      </header>
-
-      @if (loading()) {
-        <p class="state-msg">Cargando tableros…</p>
-      } @else if (boards().length === 0) {
-        <p class="state-msg">No tenés tableros. Creá uno para empezar.</p>
-      } @else {
-        @for (board of boards(); track board.id) {
-          <section class="board-section">
-            <h2 class="board-title">{{ board.title }}</h2>
-            <div class="columns-row" cdkDropListGroup>
-              @for (col of board.columns; track col.id) {
-                <app-column
-                  [column]="col"
-                  (cardAdded)="onCardAdded($event, board)"
-                  (cardDeleted)="onCardDeleted($event, board)"
-                  (dropped)="onDrop($event, board)"
-                />
-              }
-            </div>
-          </section>
-        }
-      }
-    </div>
-  `,
-  styles: [`
-    .boards-shell { min-height: 100vh; background: #edf2f7; font-family: sans-serif; }
-    .toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 24px;
-      background: #2b6cb0;
-      color: #fff;
-    }
-    .toolbar h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 1px; }
-    .toolbar-actions { display: flex; gap: 8px; align-items: center; }
-    .toolbar-actions input { padding: 6px 10px; border-radius: 4px; border: none; font-size: 14px; }
-    .btn-primary {
-      background: #fff; color: #2b6cb0; border: none;
-      padding: 7px 14px; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer;
-    }
-    .btn-secondary {
-      background: rgba(255,255,255,0.2); color: #fff; border: none;
-      padding: 7px 14px; border-radius: 4px; font-size: 14px; cursor: pointer;
-    }
-    .board-section { padding: 24px; }
-    .board-title { font-size: 16px; font-weight: 700; color: #2d3748; margin: 0 0 14px; }
-    .columns-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; }
-    .state-msg { text-align: center; padding: 48px; color: #718096; }
-  `]
+  templateUrl: './boards.component.html',
+  styleUrl: './boards.component.scss'
 })
 export class BoardsComponent implements OnInit, OnDestroy {
   private boardSvc = inject(BoardService);

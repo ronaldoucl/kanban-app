@@ -1,0 +1,20 @@
+<div class="card" cdkDrag>
+  <div class="card__placeholder" *cdkDragPlaceholder></div>
+
+  <div class="card__body">
+    <span class="card__title">{{ card.title }}</span>
+    <button
+      class="card__delete"
+      type="button"
+      (click)="cardDeleted.emit(card.id)"
+      title="Eliminar"
+      aria-label="Eliminar tarjeta"
+    >
+      ✕
+    </button>
+  </div>
+
+  <div class="card__footer">
+    <span class="card__id">KAN-{{ card.order + 1 }}</span>
+  </div>
+</div>

@@ -1,0 +1,108 @@
+.column {
+  width: 280px;
+  max-width: 280px;
+  flex-shrink: 0;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-accent-top);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.column__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.column__title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.column__count {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+
+.column__cards {
+  min-height: 24px;
+}
+
+/* card en arrastre dentro de la columna */
+.column__cards.cdk-drop-list-dragging app-card:not(.cdk-drag-placeholder) {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.add-card-btn {
+  width: 100%;
+  border: 1px dashed var(--color-border);
+  background: none;
+  color: var(--color-text-muted);
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 13px;
+  text-align: center;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.add-card-btn:hover {
+  border-color: var(--color-brand-mid);
+  color: var(--color-brand);
+}
+
+.add-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-card input {
+  height: 36px;
+  padding: 0 10px;
+}
+
+.add-card__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-brand-sm {
+  height: 32px;
+  padding: 0 12px;
+  background: var(--color-brand);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-brand-sm:hover {
+  background: var(--color-brand-hover);
+}
+
+.btn-ghost-sm {
+  height: 32px;
+  padding: 0 12px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.btn-ghost-sm:hover {
+  border-color: var(--color-brand-mid);
+  color: var(--color-brand);
+}

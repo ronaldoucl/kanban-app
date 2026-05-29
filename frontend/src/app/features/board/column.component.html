@@ -1,0 +1,37 @@
+<div class="column">
+  <div class="column__header">
+    <span class="column__title">{{ column.title }}</span>
+    <span class="column__count">{{ column.cards.length }}</span>
+  </div>
+
+  <div
+    cdkDropList
+    [id]="column.id"
+    [cdkDropListData]="column.cards"
+    class="column__cards"
+    (cdkDropListDropped)="dropped.emit($event)"
+  >
+    @for (card of column.cards; track card.id) {
+      <app-card [card]="card" (cardDeleted)="cardDeleted.emit($event)" />
+    }
+  </div>
+
+  @if (addingCard()) {
+    <div class="add-card">
+      <input
+        #cardInput
+        type="text"
+        placeholder="Título de la tarea"
+        (keydown.enter)="submitCard(cardInput.value)"
+        (keydown.escape)="addingCard.set(false)"
+        autofocus
+      />
+      <div class="add-card__actions">
+        <button class="btn-brand-sm" (click)="submitCard(cardInput.value)">Agregar</button>
+        <button class="btn-ghost-sm" (click)="addingCard.set(false)">Cancelar</button>
+      </div>
+    </div>
+  } @else {
+    <button class="add-card-btn" (click)="addingCard.set(true)">+ Agregar tarea</button>
+  }
+</div>

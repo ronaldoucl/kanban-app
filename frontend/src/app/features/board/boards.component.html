@@ -1,0 +1,56 @@
+<div class="board-page">
+  <header class="navbar">
+    <div class="navbar__brand">KanFlow</div>
+    <div class="navbar__right">
+      <span class="avatar" title="Tu cuenta" aria-label="Tu cuenta">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5 0-9 2.5-9 6v1h18v-1c0-3.5-4-6-9-6Z" />
+        </svg>
+      </span>
+      <button class="logout-link" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="board-content">
+    <div class="board-content__head">
+      @if (!creatingBoard()) {
+        <button class="btn-brand" (click)="creatingBoard.set(true)">Nuevo tablero</button>
+      } @else {
+        <div class="new-board">
+          <input
+            #boardInput
+            type="text"
+            placeholder="Nombre del tablero"
+            (keydown.enter)="addBoard(boardInput.value)"
+            (keydown.escape)="creatingBoard.set(false)"
+            autofocus
+          />
+          <button class="btn-brand" (click)="addBoard(boardInput.value)">Crear</button>
+          <button class="btn-ghost" (click)="creatingBoard.set(false)">Cancelar</button>
+        </div>
+      }
+    </div>
+
+    @if (loading()) {
+      <p class="state-msg">Cargando tableros…</p>
+    } @else if (boards().length === 0) {
+      <p class="state-msg">No tenés tableros. Creá uno para empezar.</p>
+    } @else {
+      @for (board of boards(); track board.id) {
+        <section class="board-section">
+          <h2 class="board-section__title">{{ board.title }}</h2>
+          <div class="columns-row" cdkDropListGroup>
+            @for (col of board.columns; track col.id) {
+              <app-column
+                [column]="col"
+                (cardAdded)="onCardAdded($event, board)"
+                (cardDeleted)="onCardDeleted($event, board)"
+                (dropped)="onDrop($event, board)"
+              />
+            }
+          </div>
+        </section>
+      }
+    }
+  </main>
+</div>

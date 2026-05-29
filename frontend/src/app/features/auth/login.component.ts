@@ -1,69 +1,60 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
-  template: `
-    <div class="login-container">
-      <h2>Iniciar sesión</h2>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <div>
-          <label for="email">Email</label>
-          <input id="email" type="email" formControlName="email" placeholder="correo@ejemplo.com" />
-        </div>
-        <div>
-          <label for="password">Contraseña</label>
-          <input id="password" type="password" formControlName="password" placeholder="Contraseña" />
-        </div>
-        @if (errorMsg()) {
-          <p class="error">{{ errorMsg() }}</p>
-        }
-        <button type="submit" [disabled]="form.invalid || loading()">
-          {{ loading() ? 'Ingresando...' : 'Ingresar' }}
-        </button>
-      </form>
-      <p class="switch-link">
-        ¿No tenés una cuenta? <a routerLink="/register">Registrate</a>
-      </p>
-    </div>
-  `,
-  styles: [`
-    .login-container { max-width: 360px; margin: 80px auto; padding: 24px; }
-    div { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
-    input { padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-    button { width: 100%; padding: 10px; cursor: pointer; }
-    .error { color: red; font-size: 13px; }
-    .switch-link { margin-top: 16px; font-size: 13px; text-align: center; }
-  `]
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss'
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required]
   });
 
-  errorMsg = signal('');
   loading = signal(false);
 
+  isInvalid(name: string): boolean {
+    const control = this.form.get(name);
+    return !!control && control.touched && control.invalid;
+  }
+
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.toast.error('Revisá los campos marcados.');
+      return;
+    }
+
     this.loading.set(true);
-    this.errorMsg.set('');
     const { email, password } = this.form.value;
     this.auth.login(email!, password!).subscribe({
-      next: () => this.router.navigate(['/boards']),
-      error: (err) => {
-        this.errorMsg.set(err?.error?.error || 'Login failed. Please try again.');
+      next: () => {
+        this.toast.success('¡Bienvenido de nuevo!');
+        this.router.navigate(['/boards']);
+      },
+      error: (err: HttpErrorResponse) => {
         this.loading.set(false);
+        this.toast.error(this.resolveError(err));
       }
     });
+  }
+
+  private resolveError(err: HttpErrorResponse): string {
+    if (err.status === 0) {
+      return 'No se pudo conectar con el servidor. Verificá tu conexión.';
+    }
+    return err.error?.error || 'No se pudo iniciar sesión. Intentá de nuevo.';
   }
 }
