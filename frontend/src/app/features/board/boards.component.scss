@@ -1,5 +1,7 @@
 .board-page {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--color-surface);
 }
 
@@ -110,7 +112,7 @@
 /* ---- Grilla de tableros ---- */
 .boards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
@@ -328,5 +330,24 @@
     font-size: 11px;
     color: #5E6278;
     line-height: 1.4;
+  }
+}
+
+.app-footer {
+  margin-top: auto;
+  padding: 16px;
+  text-align: center;
+  font-size: 11px;
+  color: #A1A5B7;
+  letter-spacing: 0.01em;
+  border-top: 0.5px solid #E4E6EF;
+
+  a {
+    color: #A1A5B7;
+    text-decoration: none;
+    border-bottom: 0.5px solid #D0D3E0;
+    padding-bottom: 1px;
+
+    &:hover { color: #5E6278; }
   }
 }

@@ -67,9 +67,7 @@
           <div class="board-card" (click)="openBoard(board)">
             @if (editingBoardId() !== board.id) {
               <p class="board-title">{{ board.title }}</p>
-              <p class="board-meta">
-                {{ board.columns.length }} columnas · {{ cardCount(board) }} tarjetas
-              </p>
+              <p class="board-meta">{{ board.columns.length }} columnas</p>
               <button
                 class="board-menu-btn"
                 (click)="toggleMenu(board.id, $event)"
@@ -112,4 +110,8 @@
       </div>
     }
   </main>
+
+  <footer class="app-footer">
+    Developed by <a href="https://github.com/ronaldoucl" target="_blank" rel="noopener">RonaldoScript</a>
+  </footer>
 </div>

@@ -43,11 +43,6 @@ export class BoardsComponent implements OnInit {
     this.router.navigate(['/boards', buildBoardPath(board)]);
   }
 
-  /** Cantidad total de tarjetas en el tablero (suma de todas sus columnas). */
-  cardCount(board: Board): number {
-    return board.columns.reduce((total, col) => total + col.cards.length, 0);
-  }
-
   addBoard(title: string): void {
     const trimmed = title.trim();
     if (!trimmed) return;
