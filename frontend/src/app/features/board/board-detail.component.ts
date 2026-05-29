@@ -2,22 +2,21 @@ import { Component, HostListener, OnDestroy, OnInit, computed, inject, signal } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AuthService } from '../../core/services/auth.service';
 import { BoardService, Board, Card, Column } from '../../core/services/board.service';
 import { SocketService, CardMovedPayload } from '../../core/services/socket.service';
+import { NavbarComponent } from '../../core/components/navbar/navbar.component';
 import { ColumnComponent, AddCardEvent } from './column.component';
 import { extractBoardId } from './board-url.util';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [DragDropModule, ColumnComponent],
+  imports: [DragDropModule, ColumnComponent, NavbarComponent],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
 export class BoardDetailComponent implements OnInit, OnDestroy {
   private boardSvc = inject(BoardService);
-  private auth = inject(AuthService);
   private socketSvc = inject(SocketService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -89,8 +88,6 @@ export class BoardDetailComponent implements OnInit, OnDestroy {
   goBack(): void {
     this.router.navigate(['/boards']);
   }
-
-  logout(): void { this.auth.logout(); }
 
   private updateBoard(fn: (board: Board) => Board): void {
     this.board.update(b => (b ? fn(b) : b));

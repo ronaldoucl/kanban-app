@@ -1,19 +1,18 @@
 import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
 import { BoardService, Board } from '../../core/services/board.service';
+import { NavbarComponent } from '../../core/components/navbar/navbar.component';
 import { buildBoardPath } from './board-url.util';
 
 @Component({
   selector: 'app-boards',
   standalone: true,
-  imports: [],
+  imports: [NavbarComponent],
   templateUrl: './boards.component.html',
   styleUrl: './boards.component.scss'
 })
 export class BoardsComponent implements OnInit {
   private boardSvc = inject(BoardService);
-  private auth = inject(AuthService);
   private router = inject(Router);
 
   boards = signal<Board[]>([]);
@@ -36,8 +35,6 @@ export class BoardsComponent implements OnInit {
       error: () => this.loading.set(false)
     });
   }
-
-  logout(): void { this.auth.logout(); }
 
   /** Total de tareas del tablero, sumando las cards de todas sus columnas. */
   totalTasks(board: Board): number {

@@ -10,68 +10,14 @@
   background: var(--color-surface);
 }
 
-/* ---- Navbar ---- */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: var(--navbar-h);
-  padding: 0 var(--content-pad);
-  background: var(--color-surface-card);
-  border-bottom: 1px solid var(--color-border);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-
-.navbar__brand {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-brand);
-  letter-spacing: -0.01em;
-}
-
-.navbar__right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--color-brand-light);
-  color: var(--color-brand);
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.avatar svg {
-  width: 18px;
-  height: 18px;
-}
-
-.logout-link {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  transition: color 0.15s ease, background 0.15s ease;
-}
-
-.logout-link:hover {
-  color: var(--color-brand);
-  background: var(--color-surface-hover);
-}
-
 /* ---- Contenido ---- */
 .board-content {
   flex: 1;
+  /* Centra las columnas dentro de --content-max en pantallas anchas,
+     alineándose con el contenido interno de la navbar. */
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
   padding: var(--content-pad);
   display: flex;
   flex-direction: column;
